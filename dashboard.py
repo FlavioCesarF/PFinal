@@ -4,6 +4,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_lottie import st_lottie
 import requests
+import folium
+from streamlit_folium import st_folium
 
 # Page configuration
 st.set_page_config(
@@ -19,20 +21,15 @@ def load_lottieurl(url: str):
         return None
     return r.json()
 
-# Animación Lottie
-def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
+# Cargar la animación Lottie
 lottie_url = "https://lottie.host/becb33b8-1bf2-4eca-bc4a-b6d68375c4d5/FJ1dgjVxNg.json"
 lottie_json = load_lottieurl(lottie_url)
 st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
 
 # Cargar datos
 aeropuerto_detalle = pd.read_csv('aeropuertos_detalle.csv', delimiter=';')
-# Cargar datos
+
+# Cargar datos de vuelos
 files = ['202405-informe-ministerio.csv', '202312-informe-ministerio.csv']
 data_frames = []
 
@@ -49,12 +46,11 @@ vuelos['YearMonth'] = vuelos['Fecha UTC'].dt.to_period('M').astype(str)
 vuelos['Quarter'] = vuelos['Fecha UTC'].dt.to_period('Q')
 
 # Título del Dashboard
-st.title('🛫 Dashboard de Vuelos Flavio Cesar 🛬')
+st.title('🛫 Dashboard de Análisis de Aeropuertos(🇦🇷) 🛬')
 st.markdown('### Resumen de vuelos y rendimiento 📊')
 
-# Mostrar la animación Lottie si se cargó correctamente
-# if lottie_json:
-#     st_lottie(lottie_json, speed=1, width=700, height=300, key="dashboard")
+# Logo en la barra lateral
+st.sidebar.image("logo3.jpg", use_column_width=True)
 
 # Filtros en la barra lateral con expanders
 with st.sidebar:
@@ -68,6 +64,10 @@ with st.sidebar:
         airline_filter = st.selectbox('Selecciona Aerolínea', ['Todos'] + list(vuelos['Aerolinea Nombre'].unique()))
     with st.expander("🛫 Filtro por Tipo de Movimiento"):
         movement_filter = st.selectbox('Selecciona Movimiento', ['Todos'] + list(vuelos['Tipo de Movimiento'].unique()))
+    with st.expander("🔍 Búsqueda por Coordenadas"):
+        latitude = st.number_input("Latitud", value=0.0, format="%.6f")
+        longitude = st.number_input("Longitud", value=0.0, format="%.6f")
+        search_button = st.button("Buscar Coordenadas")
 
 # Aplicar filtros
 filtered_data = vuelos[
@@ -139,3 +139,40 @@ with col4:
     fig = px.pie(movement_flights, values='Vuelos', names='Tipo de Movimiento', title="Vuelos por Tipo de Movimiento", hole=.3,
                  color_discrete_sequence=px.colors.sequential.RdBu)
     st.plotly_chart(fig, use_container_width=True)
+
+# Detalles de aeropuertos
+st.markdown("## 📋 Detalles de Aeropuertos")
+st.dataframe(aeropuerto_detalle)
+
+# Crear un mapa centrado en un punto central
+if search_button and latitude != 0.0 and longitude != 0.0:
+    map_center = [latitude, longitude]
+else:
+    map_center = [-38.4161, -63.6167]  # Coordenadas de Buenos Aires, Argentina
+mymap = folium.Map(location=map_center, zoom_start=5)
+
+# Añadir marcadores al mapa
+for _, row in aeropuerto_detalle.iterrows():
+    folium.Marker(
+        location=[row['latitud'], row['longitud']],
+        popup=(
+            f"<b>{row['denominacion']}</b><br>"
+            f"{row['local']}<br>"
+            f"{row['provincia']}<br>"
+            f"{row['latitud']}, {row['longitud']}"
+        ),
+        icon=folium.Icon(icon='plane', prefix='fa')
+    ).add_to(mymap)
+
+# Añadir un marcador en la ubicación buscada
+if search_button and latitude != 0.0 and longitude != 0.0:
+    folium.Marker(
+        location=[latitude, longitude],
+        popup=f"<b>Ubicación buscada:</b><br>{latitude}, {longitude}",
+        icon=folium.Icon(color='red', icon='info-sign')
+    ).add_to(mymap)
+
+# Mostrar el mapa en Streamlit
+st.markdown('<div style="display: flex; justify-content: center; align-items: center;">', unsafe_allow_html=True)
+st_folium(mymap, width=900, height=700)
+st.markdown('</div>', unsafe_allow_html=True)
