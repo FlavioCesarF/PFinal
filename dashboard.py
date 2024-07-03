@@ -140,6 +140,27 @@ with col4:
                  color_discrete_sequence=px.colors.sequential.RdBu)
     st.plotly_chart(fig, use_container_width=True)
 
+# Mapa de calor de actividad por hora del día
+st.subheader('🌡️ Mapa de Calor de Actividad por Hora del Día')
+filtered_data['Hora'] = filtered_data['Fecha UTC'].dt.hour
+heatmap_data = filtered_data.groupby(['Aeropuerto', 'Hora']).size().reset_index(name='Conteo')
+fig = px.density_heatmap(heatmap_data, x='Hora', y='Aeropuerto', z='Conteo',
+                         color_continuous_scale='Viridis', title="Mapa de Calor de Actividad por Hora del Día")
+st.plotly_chart(fig, use_container_width=True)
+
+# Análisis de puntualidad
+st.subheader('⏱️ Análisis de Puntualidad')
+if 'Retraso de Llegada (min)' in filtered_data.columns and 'Retraso de Salida (min)' in filtered_data.columns:
+    arrival_delay = filtered_data['Retraso de Llegada (min)']
+    departure_delay = filtered_data['Retraso de Salida (min)']
+    fig = go.Figure()
+    fig.add_trace(go.Box(y=arrival_delay, name='Retraso de Llegada', marker_color='red'))
+    fig.add_trace(go.Box(y=departure_delay, name='Retraso de Salida', marker_color='blue'))
+    fig.update_layout(title="Distribución de Retrasos", yaxis_title="Minutos")
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.write("No hay datos de retraso disponibles para el análisis de puntualidad.")
+
 # Detalles de aeropuertos
 st.markdown("## 📋 Detalles de Aeropuertos")
 st.dataframe(aeropuerto_detalle)
