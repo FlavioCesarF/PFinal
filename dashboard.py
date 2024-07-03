@@ -33,9 +33,7 @@ st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
 # Cargar datos
 aeropuerto_detalle = pd.read_csv('aeropuertos_detalle.csv', delimiter=';')
 # Cargar datos
-files = ['202405-informe-ministerio.csv', 
-        '202312-informe-ministerio.csv', 
-        '202212-informe-ministerio.csv']
+files = ['202405-informe-ministerio.csv', '202312-informe-ministerio.csv']
 data_frames = []
 
 for file in files:
