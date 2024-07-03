@@ -8,7 +8,7 @@ import requests
 # Page configuration
 st.set_page_config(
     page_title="Dashboard Flavio Cesar",
-    page_icon="🐈",
+    page_icon="🛩️",
     layout="wide",
     initial_sidebar_state="expanded")
 
@@ -32,7 +32,16 @@ st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
 
 # Cargar datos
 aeropuerto_detalle = pd.read_csv('aeropuertos_detalle.csv', delimiter=';')
-vuelos = pd.read_csv('202405-informe-ministerio.csv','202405-informe-ministerio.csv', delimiter=';')
+# Cargar datos
+files = ['202405-informe-ministerio.csv', '202312-informe-ministerio.csv', '', '']
+data_frames = []
+
+for file in files:
+    df = pd.read_csv(file, delimiter=';')
+    data_frames.append(df)
+
+# Concatenar los DataFrames
+vuelos = pd.concat(data_frames, ignore_index=True)
 
 # Transformar y limpiar datos
 vuelos['Fecha UTC'] = pd.to_datetime(vuelos['Fecha UTC'], format='%d/%m/%Y')
@@ -40,7 +49,7 @@ vuelos['YearMonth'] = vuelos['Fecha UTC'].dt.to_period('M').astype(str)
 vuelos['Quarter'] = vuelos['Fecha UTC'].dt.to_period('Q')
 
 # Título del Dashboard
-st.title('🌟 Dashboard de Vuelos Flavio Cesar 🌟')
+st.title('🛫 Dashboard de Vuelos Flavio Cesar 🛬')
 st.markdown('### Resumen de vuelos y rendimiento 📊')
 
 # Mostrar la animación Lottie si se cargó correctamente
