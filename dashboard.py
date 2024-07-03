@@ -19,21 +19,20 @@ def load_lottieurl(url: str):
         return None
     return r.json()
 
-# Intenta cargar la animación desde la URL
-lottie_url = "https://lottie.host/4e613a73-5520-425b-90cf-fdfe14e20b4a/wZAoFBUeWd.json"
-lottie_json = load_lottieurl(lottie_url)
+# Animación Lottie
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
 
-# Si falla, intenta cargar desde un archivo local
-if lottie_json is None:
-    try:
-        with open('Animation - 1719585227027.json', 'r') as f:
-            lottie_json = f.read()
-    except FileNotFoundError:
-        st.error("No se pudo cargar la animación Lottie. Verifica el enlace o el archivo local.")
+lottie_url = "https://lottie.host/becb33b8-1bf2-4eca-bc4a-b6d68375c4d5/FJ1dgjVxNg.json"
+lottie_json = load_lottieurl(lottie_url)
+st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
 
 # Cargar datos
 aeropuerto_detalle = pd.read_csv('aeropuertos_detalle.csv', delimiter=';')
-vuelos = pd.read_csv('202405-informe-ministerio.csv', delimiter=';')
+vuelos = pd.read_csv('202405-informe-ministerio.csv','202405-informe-ministerio.csv', delimiter=';')
 
 # Transformar y limpiar datos
 vuelos['Fecha UTC'] = pd.to_datetime(vuelos['Fecha UTC'], format='%d/%m/%Y')
