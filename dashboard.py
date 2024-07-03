@@ -24,7 +24,7 @@ def load_lottieurl(url: str):
 # Cargar la animación Lottie
 lottie_url = "https://lottie.host/becb33b8-1bf2-4eca-bc4a-b6d68375c4d5/FJ1dgjVxNg.json"
 lottie_json = load_lottieurl(lottie_url)
-st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
+st_lottie(lottie_json, speed=1, width=1000, height=300, key="dashboard")
 
 # Cargar datos
 aeropuerto_detalle = pd.read_csv('aeropuertos_detalle.csv', delimiter=';')
